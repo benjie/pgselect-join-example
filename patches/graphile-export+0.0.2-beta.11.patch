@@ -1,0 +1,76 @@
+diff --git a/node_modules/graphile-export/dist/exportSchema.d.ts b/node_modules/graphile-export/dist/exportSchema.d.ts
+index 9573d7c..4c9df7a 100644
+--- a/node_modules/graphile-export/dist/exportSchema.d.ts
++++ b/node_modules/graphile-export/dist/exportSchema.d.ts
+@@ -10,5 +10,11 @@ export declare function objectNullPrototype(properties: t.ObjectProperty[]): t.E
+ export declare function exportSchemaAsString(schema: GraphQLSchema, options: ExportOptions): Promise<{
+     code: string;
+ }>;
++export declare function exportValueAsString(
++  name: string,
++  value: any,
++  options: ExportOptions,
++): Promise<{ code: string }>;
++
+ export declare function exportSchema(schema: GraphQLSchema, toPath: string | URL, options?: ExportOptions): Promise<void>;
+ //# sourceMappingURL=exportSchema.d.ts.map
+diff --git a/node_modules/graphile-export/dist/exportSchema.js b/node_modules/graphile-export/dist/exportSchema.js
+index 968026c..62af48a 100644
+--- a/node_modules/graphile-export/dist/exportSchema.js
++++ b/node_modules/graphile-export/dist/exportSchema.js
+@@ -1096,6 +1096,33 @@ async function exportSchemaAsString(schema, options) {
+     return { code };
+ }
+ exports.exportSchemaAsString = exportSchemaAsString;
++
++async function exportValueAsString(
++  name,
++  value,
++  options,
++) {
++  const file = new CodegenFile(options);
++
++  const exportName = file.makeVariable(name);
++  const valueAST = convertToIdentifierViaAST(file, value, name, name);
++  file.addStatements(
++    t.exportNamedDeclaration(
++      t.variableDeclaration("const", [
++        t.variableDeclarator(exportName, valueAST),
++      ]),
++    ),
++  );
++
++  const ast = file.toAST();
++
++  const optimizedAst = (0, index_js_1.optimize)(ast);
++
++  const { code } = reallyGenerate(optimizedAst, {});
++  return { code };
++}
++exports.exportValueAsString = exportValueAsString;
++
+ async function loadESLint() {
+     try {
+         return await import("eslint");
+diff --git a/node_modules/graphile-export/dist/index.d.ts b/node_modules/graphile-export/dist/index.d.ts
+index 02bc40e..013ccf9 100644
+--- a/node_modules/graphile-export/dist/index.d.ts
++++ b/node_modules/graphile-export/dist/index.d.ts
+@@ -1,4 +1,4 @@
+-export { exportSchema, exportSchemaAsString } from "./exportSchema.js";
++export { exportSchema, exportSchemaAsString, exportValueAsString } from "./exportSchema.js";
+ export { EXPORTABLE } from "./helpers.js";
+ export type { ExportOptions } from "./interfaces.js";
+ //# sourceMappingURL=index.d.ts.map
+diff --git a/node_modules/graphile-export/dist/index.js b/node_modules/graphile-export/dist/index.js
+index f75776a..843e596 100644
+--- a/node_modules/graphile-export/dist/index.js
++++ b/node_modules/graphile-export/dist/index.js
+@@ -4,6 +4,7 @@ exports.EXPORTABLE = exports.exportSchemaAsString = exports.exportSchema = void
+ var exportSchema_js_1 = require("./exportSchema.js");
+ Object.defineProperty(exports, "exportSchema", { enumerable: true, get: function () { return exportSchema_js_1.exportSchema; } });
+ Object.defineProperty(exports, "exportSchemaAsString", { enumerable: true, get: function () { return exportSchema_js_1.exportSchemaAsString; } });
++Object.defineProperty(exports, "exportValueAsString", { enumerable: true, get: function () { return exportSchema_js_1.exportValueAsString; } });
+ var helpers_js_1 = require("./helpers.js");
+ Object.defineProperty(exports, "EXPORTABLE", { enumerable: true, get: function () { return helpers_js_1.EXPORTABLE; } });
+ //# sourceMappingURL=index.js.map

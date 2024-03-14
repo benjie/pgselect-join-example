@@ -1,0 +1,31 @@
+{
+  "scripts": {
+    "start": "yarn && yarn resetdb && yarn generateRegistry && yarn watch",
+    "resetdb": "(createdb abecc || true) && psql -X1v ON_ERROR_STOP=1 -f schema.sql abecc",
+    "generateRegistry": "node scripts/generateRegistry.mjs",
+    "watch": "node --watch index.mjs",
+    "postinstall": "patch-package"
+  },
+  "dependencies": {
+    "@dataplan/json": "^0.0.1-beta.8",
+    "@dataplan/pg": "^0.0.1-beta.17",
+    "express": "^4.18.3",
+    "grafast": "^0.1.1-beta.6",
+    "grafserv": "^0.1.0",
+    "pg": "^8.11.3"
+  },
+  "devDependencies": {
+    "@tsconfig/node20": "^20.1.2",
+    "@types/node": "^20.11.27",
+    "graphile-build": "^5.0.0-beta.16",
+    "graphile-build-pg": "^5.0.0-beta.20",
+    "graphile-config": "^0.0.1-beta.7",
+    "graphile-export": "^0.0.2-beta.11",
+    "patch-package": "^8.0.0",
+    "prettier": "^3.2.5",
+    "typescript": "^5.4.2"
+  },
+  "prettier": {
+    "proseWrap": "always"
+  }
+}
